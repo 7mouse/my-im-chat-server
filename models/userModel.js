@@ -20,6 +20,18 @@ const UserSchema = mongoose.Schema({
   status: {
     type: Number,
     default: 0
+  },
+  rooms: {
+    type: Array,
+    default: []
+  },
+  userinfo: {
+    type: String,
+    default: "这个用户什么都没有留下..."
+  },
+  avatarUrl: {
+    type: String,
+    default: ""
   }
 });
 

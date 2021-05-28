@@ -1,30 +1,26 @@
 const Koa = require('koa')
 const app = new Koa()
 
-// const IO = require( 'koa-socket' )
-// const io = new IO();
-// io.attach( app );
-
 // app._io.on( 'connection', socket => {
 //   console.log(`新用户建立连接了`);
 
-//   socket.on('join',function(data){
-//     socket.emit("history", getData(socket.request.session.id));
-//   });
-//   // 监听客户端连接
-//   socket.on('clientMsg',function(data){
-//     switch (data.type) {
-//       case 0 :
-//         socket.emit('serverMsg', {data:data.message, objectId: data.toId});
-//         break;
-//       case 1:
-//         // app._io.emit('serverMsg','广播消息');
-//         break;
-//       case 2:
-//         app._io.to(groupid).emit('serverMsg',{data:data.message, roomId: data.toRoomId});
+//   // socket.on('join',function(data){
+//   //   socket.emit("history", getData(socket.request.session.id));
+//   // });
+//   // // 监听客户端连接
+//   // socket.on('clientMsg',function(data){
+//   //   switch (data.type) {
+//   //     case 0 :
+//   //       socket.emit('serverMsg', {data:data.message, objectId: data.toId});
+//   //       break;
+//   //     case 1:
+//   //       // app._io.emit('serverMsg','广播消息');
+//   //       break;
+//   //     case 2:
+//   //       app._io.to(groupid).emit('serverMsg',{data:data.message, roomId: data.toRoomId});
 
-//     }
-//   })
+//   //   }
+//   // })
 // });
 
 const json = require('koa-json')

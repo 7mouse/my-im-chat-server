@@ -21,6 +21,8 @@ var port = normalizePort(process.env.PORT || '8888');
 
 var server = http.createServer(app.callback());
 
+require('../websocket.js')(server);
+
 /**
  * Listen on provided port, on all network interfaces.
  */

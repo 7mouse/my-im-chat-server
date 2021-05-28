@@ -1,4 +1,5 @@
 const userRouter = require('./users')
+const roomRouter = require('./rooms')
 const {SuccessModel} = require('../utils/resModel');
 const router = require('koa-router')()
 
@@ -32,5 +33,5 @@ async (ctx, next) => {
 )
 
 router.use('/user', userRouter.routes(), userRouter.allowedMethods())
-
+router.use('/room', roomRouter.routes(), roomRouter.allowedMethods())
 module.exports = router

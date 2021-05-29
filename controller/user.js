@@ -1,4 +1,6 @@
 const crypto = require('crypto');
+const mongoose = require('mongoose');
+const roomModel = require('../models/roomModel');
 const userModel = require('../models/userModel');
 const { SuccessModel, ErrorModel } = require('../utils/resModel');
 
@@ -11,14 +13,18 @@ async function login (ctx, next) {
     ctx.response.status = 401;
   }
   if (res && res.status === 0) {
+    ctx.session.user = res;
     ctx.session.username = res.username;
     ctx.session.userId = res._id;
     await userModel.updateOne({ _id: res._id }, { status: 1 });
     let rooms = [];
-    
     for (let i = 0; i < res.rooms.length; i++) {
-      const {username, userinfo, avatarUrl} = await userModel.findOne({_id:res.rooms[i]});
-      rooms.push({username, userinfo, avatarUrl});
+      const {username, userinfo, avatarUrl} = await userModel.findOne({_id: res.rooms[i].objUserId});
+      const room = await roomModel.findOne({_id: res.rooms[i].roomId});
+      rooms.push({
+        room: room,
+        user:[{username, userinfo, avatarUrl}]
+      });
     }
     ctx.response.status = 200;
     ctx.body = new SuccessModel( "登录成功", {
@@ -100,17 +106,46 @@ async function addUserRoom(ctx) {
     ctx.response.status = 401;
   } else {
     const user = await userModel.findOne({username:addUser});
-    if (user) {
+    if (!user) {
+      ctx.body = new ErrorModel("用户不存在");
+      ctx.response.status = 401;      
+    }
+    let room = await roomModel.findOne({
+      roomType: 0, 
+      users: {
+        $all: [thisUser, addUser]
+      }
+    })
+    if (!room) {
+      room = await roomModel.insertMany({
+        roomType: 0,
+        creator: thisUser,
+        users: [thisUser, addUser],
+      });
+      room = room[0];
+      const thisUserId = mongoose.Types.ObjectId(ctx.session.userId);
+      // return;
       await userModel.updateOne({username: thisUser}, {
         $addToSet: {
-          rooms: user._id
+          "rooms": {
+            roomId: room._id,
+            objUserId: user._id
+          }
+        }
+      });
+      await userModel.updateOne({username: addUser}, {
+        $addToSet: {
+          "rooms": {
+            roomId: room._id,
+            objUserId: thisUserId
+          }
         }
       });
       ctx.body = new SuccessModel("添加成功");
       ctx.response.status = 200; 
     } else {
-      ctx.body = new ErrorModel("用户不存在");
-      ctx.response.status = 401;      
+      ctx.body = new SuccessModel("已是好友");
+      ctx.response.status = 200; 
     }
   }
 }

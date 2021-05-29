@@ -4,6 +4,7 @@ const multer = require('@koa/multer');
 const loggedCheck = require('../middlewares/loggedCheck');
 const { SuccessModel } = require('../utils/resModel');
 const userModel = require('../models/userModel');
+const roomModel = require('../models/roomModel');
 const upload = multer({dest: 'uploads/'});
 
 const router = require('koa-router')();
@@ -49,9 +50,12 @@ router.post('/islogged',
     
     let rooms = [];
     for (let i = 0; i < res.rooms.length; i++) {
-      console.log(res.rooms[i])
-      const {username, userinfo, avatarUrl} = await userModel.findOne({_id:res.rooms[i]});
-      rooms.push({username, userinfo, avatarUrl});
+      const {username, userinfo, avatarUrl} = await userModel.findOne({_id: res.rooms[i].objUserId});
+      const room = await roomModel.findOne({_id: res.rooms[i].roomId});
+      rooms.push({
+        room: room,
+        user:[{username, userinfo, avatarUrl}]
+      });
     }
     ctx.body = new SuccessModel( "登录成功", {
       username: res.username,

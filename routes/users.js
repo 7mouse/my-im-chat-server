@@ -1,10 +1,11 @@
 const { login, register, getUserinfo, getUser, setUserinfo, addUserRoom } = require('../controller/user');
-
+const mongoose = require('mongoose')
 const multer = require('@koa/multer');
 const loggedCheck = require('../middlewares/loggedCheck');
 const { SuccessModel } = require('../utils/resModel');
 const userModel = require('../models/userModel');
 const roomModel = require('../models/roomModel');
+const messageModel = require('../models/messageModel');
 const upload = multer({dest: 'uploads/'});
 
 const router = require('koa-router')();
@@ -52,6 +53,32 @@ router.post('/islogged',
     for (let i = 0; i < res.rooms.length; i++) {
       const {username, userinfo, avatarUrl} = await userModel.findOne({_id: res.rooms[i].objUserId});
       const room = await roomModel.findOne({_id: res.rooms[i].roomId});
+      const msgList = [];
+      for (let i = 0; i < room.messageList.length; i++) {  
+        let msgId = mongoose.Types.ObjectId(room.messageList[i]);
+        let msg = await messageModel.findOne({_id: msgId});
+        msgList.push({
+          content: msg.content,
+          contentType: msg.contentType,
+          createdTime: msg.createdTime,
+          sender: msg.sender,
+          receiver: msg.receiver
+        });
+      }
+      room.messageList = msgList;
+      // room.messageList.map(item=>{
+      //   let msgId = mongoose.Types.ObjectId(item);
+      //   let msg = messageModel.findOne({_id: msgId});
+      //   console.log(msgId)
+      //   console.log(msg.content)
+      //   return {
+      //     content: msg.content,
+      //     contentType: msg.contentType,
+      //     createdTime: msg.createdTime,
+      //     sender: msg.sender,
+      //     receiver: msg.receiver
+      //   }
+      // });
       rooms.push({
         room: room,
         user:[{username, userinfo, avatarUrl}]

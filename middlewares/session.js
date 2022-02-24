@@ -2,7 +2,7 @@
 // const redisStore = require('koa-redis');
 const session = require('koa-session');
 
-const {SECRET_KEY, REDIS_PORT} = require('../config/env');
+// const {SECRET_KEY, REDIS_PORT} = require('../config/env');
 
 module.exports = (app) => {
   return session(

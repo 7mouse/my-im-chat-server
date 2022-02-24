@@ -4,16 +4,20 @@ const MessageModel = require('../backend/models/messageModel')
 module.exports =  function socketio(server) {
   const io = require('socket.io')(server, {transports: ['websocket']});
   io.on('connection', socket => {
+    socket.on("addUser", async (data) => {
+      console.log("adduser" + data);
+      io.emit("addUser", data);
+    })
     socket.on("clientMsg", async (data)=>{
       let roomType = 0;
       if (data.receiver.startsWith("room") === true) {
         roomType = 1;
       }
-
+      let Time = Date.now();
       let room = await RoomModel.findOne({users: {$in: data.receiver}});
       if (!room) room = await RoomModel.insertMany({
         roomType: roomType,
-        createdTime: Date.now(),
+        createdTime: Time,
         creator: data.sender,
         users: [data.receiver, data.sender]
       });
@@ -21,7 +25,7 @@ module.exports =  function socketio(server) {
         receiver: data.receiver,
         content: data.content,
         contentType: data.contentType,
-        createTime: Date.now(),
+        createdTime: Time,
         sender: data.sender
       });
       await RoomModel.updateOne({_id : room._id}, {
@@ -34,7 +38,7 @@ module.exports =  function socketio(server) {
         //   socket.emit('serverMsg', data);
         // })
       } else {
-        socket.emit('serverMsg', data);
+        io.emit('serverMsg', {...data, createdTime: Time});
       }
     })
   })
